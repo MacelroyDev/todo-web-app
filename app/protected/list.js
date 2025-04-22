@@ -4,7 +4,7 @@ import TodoItem from './todoItem';
 
 
 
-function TodoList( {items} ) {
+function TodoList( {items, onDeleteItem} ) {
 
     let itemsCopy = [...items]
 
@@ -21,7 +21,7 @@ function TodoList( {items} ) {
         <div>
             <ul>
                 {itemsCopy.map((item, index) => (
-                    <TodoItem key={item.id} id={item.id} text={item.text} isComplete={item.completed}/>
+                    <TodoItem key={item.id} id={item.id} text={item.text} completed={item.isComplete} onDeleteItem={onDeleteItem}/>
                 ))}
             </ul>
         </div>

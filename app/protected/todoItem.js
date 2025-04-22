@@ -1,16 +1,32 @@
 "use client"
 
 import { useState } from 'react';
+import { FaTrash } from "react-icons/fa";
+import { updateItemCompletion } from '../_services/todo-list-service'; // Import the new function
+import { useUserAuth } from '../_utils/auth-context'; // Assuming you have user auth context
 
-const TodoItem = ({ id, text, completed }) => {
-  const [isComplete, setIsComplete] = useState(false);
 
-  const handleToggle = () => {
-    setIsComplete(!isComplete);
-    // In a real application, you would likely call an API
-    // or dispatch an action here to update the server/store
-    console.log(`Todo with ID ${id} toggled to ${!isComplete}`);
+const TodoItem = ({ id, text, completed, onDeleteItem }) => {
+  const [isComplete, setIsComplete] = useState(completed);
+  const { user } = useUserAuth();
+
+  const handleToggle = async () => {
+    const newIsComplete = !isComplete;
+    setIsComplete(newIsComplete);
+
+    if (user?.uid) {
+      const success = await updateItemCompletion(user.uid, id, newIsComplete);
+      if (!success) {
+        // If the update fails, revert the local state
+        setIsComplete(!newIsComplete);
+        console.error("Failed to update item completion in Firestore.");
+      }
+    } else {
+      console.log("User not logged in, cannot update item completion.");
+    }
   };
+
+
 
   return (
     <li>
@@ -29,6 +45,9 @@ const TodoItem = ({ id, text, completed }) => {
           </div>
         </div>
         <p className="text-sm text-gray-500">ID: {id}</p>
+        <button onClick={() => onDeleteItem(id)} className="text-gray-500 hover:text-red-500 focus:outline-none">
+          <FaTrash />
+        </button>
       </div>
     </li>
   );
